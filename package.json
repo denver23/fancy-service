@@ -1,0 +1,57 @@
+{
+  "name": "fancy-service",
+  "version": "v0.1.0",
+  "description": "Fancy-Service",
+  "author": {
+    "name": "denver",
+    "email": "28240885@qq.com",
+    "url": "https://github.com/denver23/fancy-service"
+  },
+  "scripts": {
+    "start": "npm run s.pro",
+    "s.dev": "cross-env NODE_ENV=development nodemon --watch server --watch common build/server.js",
+    "s.pro": "cross-env NODE_ENV=production node build/server.js",
+    "cli": "node document/cli/",
+    "apidoc": "apidoc -i server -o document/apidoc/"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "chalk": "^2.3.1",
+    "cheerio": "^1.0.0-rc.2",
+    "compression": "^1.7.2",
+    "cookie-parser": "^1.4.3",
+    "cross-env": "^5.1.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "file-stream-rotator": "^0.2.1",
+    "helmet": "^3.11.0",
+    "inquirer": "^5.2.0",
+    "log4js": "^2.5.3",
+    "morgan": "^1.9.0",
+    "multer": "^1.3.0",
+    "multi-loader": "^0.1.0",
+    "mysql": "^2.15.0",
+    "node-schedule": "^1.3.0",
+    "nodemailer": "^4.6.2",
+    "nodemon": "^1.17.2",
+    "pug": "^2.0.1",
+    "redis": "^2.8.0",
+    "serve-favicon": "^2.4.5",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-loader": "^1.7.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.2.0",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-vue": "^4.0.0"
+  },
+  "engines": {
+    "node": ">= 8.9.1",
+    "npm": ">= 5.6.0"
+  }
+}
