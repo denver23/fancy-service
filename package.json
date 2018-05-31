@@ -38,6 +38,7 @@
     "pug": "^2.0.1",
     "redis": "^2.8.0",
     "serve-favicon": "^2.4.5",
+    "shelljs": "^0.8.2",
     "uuid": "^3.2.1"
   },
   "devDependencies": {

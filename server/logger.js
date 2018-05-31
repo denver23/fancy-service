@@ -2,9 +2,15 @@
 const fs = require('fs')
 const path = require('path')
 const log4js = require('log4js')
+const shelljs = require('shelljs')
 
+const server = path.resolve(__dirname, './')
+console.log(server)
 const root = path.resolve(__dirname, '../logs')
-const DEBUG = process.env.NODE_ENV === 'development'
+const DEBUG = process.env.NODE_ENV !== 'production'
+
+shelljs.exec(`rsync -a --include='*/' --exclude='*' ${server}/ ${root}/`)
+// rm -irf !(.gitkeep)
 
 const appenders = {
   console: {
@@ -29,42 +35,34 @@ const categories = {
   }
 }
 
+add('Api')
+add('Controller')
+
 log4js.configure({
   appenders,
   categories,
   replaceConsole: true,
 })
 
-console.log(appenders)
+module.exports = category => log4js.getLogger(category)
 
-module.exports = (name, category = '') => {
-  let cname = name
-  if (!appenders[cname]) {
-    appenders[cname] = {
+function add(dirname) {
+  let list = []
+  try {
+    let ta = `${root}/${dirname}`
+    fs.existsSync(ta) || fs.mkdirSync(ta)
+    list = fs.readdirSync(path.resolve(__dirname, `./${dirname}`))
+  } catch (error) {
+    console.log(error)
+  }
+
+  list.forEach((ele, index) => {
+    if (ele === 'Controller.class.js') return
+    let name = [dirname, path.basename(ele, '.js')].join('/')
+
+    appenders[name] = {
       type: 'dateFile',
       filename: `${root}/${name}`,
-      pattern: '.yyyyMMdd.log',
-      alwaysIncludePattern: true,
-      maxLogSize: 1024,
-    }
-    categories[cname] = {
-      appenders: [cname],
-      level: DEBUG ? 'debug' : 'warn',
-    }
-  }
-  console.log(cname)
-  return log4js.getLogger(cname)
-}
-
-function getByDirectory(dirname, prefix = '') {
-  let pa = fs.readdirSync(path.resolve(__dirname, `./${dirname}`))
-  pa.forEach((ele, index) => {
-    let name = path.basename(ele, '.js')
-    let cname = prefix + name
-
-    appenders[cname] = {
-      type: 'dateFile',
-      filename: `${root}/${dirname}/${name}`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
       maxLogSize: 1024,
@@ -73,9 +71,11 @@ function getByDirectory(dirname, prefix = '') {
     let arr = [name]
     DEBUG && arr.push('console')
 
-    categories[cname] = {
+    categories[name] = {
       appenders: arr,
       level: DEBUG ? 'debug' : 'warn',
     }
   })
 }
+
+

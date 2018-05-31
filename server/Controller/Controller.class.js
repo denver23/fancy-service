@@ -7,6 +7,11 @@ class ControllerClass {
     this.response = response
     this.post = req.body || {}
     this.query = req.query || {}
+    console.log(this.constructor.name)
+  }
+
+  get logger() {
+    return 123123
   }
 
   send(data) {

@@ -9,10 +9,11 @@ const logger = require('../logger')(cname)
 // model
 const TestModel = require('../Model/Test.class')(logger)
 
-class Application extends require('./Controller.class') {
+class Test extends require('./Controller.class') {
   constructor(req, response, action) {
     super(req, response)
     this.user = null
+    console.log(this.logger)
     this[action]()
   }
 
@@ -43,7 +44,7 @@ class Application extends require('./Controller.class') {
   }
 }
 
-router.post('/getList', (req, res) => new Application(req, res, 'getList'))
-router.get('/getList', (req, res) => new Application(req, res, 'getList'))
+router.post('/getList', (req, res) => new Test(req, res, 'getList'))
+router.get('/getList', (req, res) => new Test(req, res, 'getList'))
 
 module.exports = router
