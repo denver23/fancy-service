@@ -1,6 +1,7 @@
 {
   "development": {
     "port": "8282",
+    "https": false,
     "jsonpCallback": "callback",
     "mysql": {
       "host": "localhost",
@@ -9,15 +10,20 @@
       "username": "fancy",
       "password": "fancy"
     },
+    "logs": "/sdb/mnt/gitHub/fancy-service/logs",
     "upload": {
       "temp": "upload.temp",
       "path": "upload",
       "url": "/upload"
-    },
-    "logs": "/sdb/mnt/gitHub/fancy-service/logs"
+    }
   },
   "testing": {
     "port": 8181,
+    "https": {
+      "port": 8282,
+      "key": "cert/private.key",
+      "cert": "cert/cert.crt"
+    },
     "jsonpCallback": "callback",
     "mysql": {
       "host": "localhost",
@@ -31,6 +37,7 @@
       "port": 6379,
       "password": ""
     },
+    "logs": "logs",
     "upload": {
       "temp": "upload.temp",
       "path": "upload",
@@ -39,6 +46,11 @@
   },
   "production": {
     "port": 8181,
+    "https": {
+      "port": 8282,
+      "key": "cert/private.key",
+      "cert": "cert/cert.crt"
+    },
     "jsonpCallback": "callback",
     "mysql": {
       "host": "localhost",
@@ -52,6 +64,7 @@
       "port": 6379,
       "password": ""
     },
+    "logs": "logs",
     "upload": {
       "temp": "upload.temp",
       "path": "upload",

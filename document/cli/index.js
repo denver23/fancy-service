@@ -15,7 +15,24 @@ const regEn = /^[A-Za-z]\w+$/
 const regPort = /^[1-9]\d{3,4}$/
 
 const release = async () => {
-  const data = await inquirer.prompt([
+  const baseinfo = await _baseinfo()
+
+  // server config
+  let config = configJson[baseinfo.environment]
+  config.port = baseinfo.port || config.port
+
+  await _mysql(config, baseinfo.environment)
+  await _redis(config)
+  await _upload(config)
+  await _logs(config)
+  await _https(config)
+
+  console.log(chalk.green('========== generage server.config.json'))
+  fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
+}
+
+async function _baseinfo() {
+  let res = await inquirer.prompt([
     {
       name: 'projectName',
       message: '项目名称:',
@@ -75,57 +92,20 @@ const release = async () => {
     },
   ])
 
-  packageJson.name = data.projectName || packageJson.name
-  packageJson.version = data.version || packageJson.version
-  packageJson.description = data.description || packageJson.description
-  packageJson.author.name = data.author || ''
-  packageJson.author.email = data.email || ''
-  packageJson.author.url = data.url || ''
+  packageJson.name = res.projectName || packageJson.name
+  packageJson.version = res.version || packageJson.version
+  packageJson.description = res.description || packageJson.description
+  packageJson.author.name = res.author || ''
+  packageJson.author.email = res.email || ''
+  packageJson.author.url = res.url || ''
 
   console.log(chalk.green('========== update pageage.json'))
   let packageFile = path.resolve(__dirname, '../../package.json')
   fs.writeFileSync(packageFile, JSON.stringify(packageJson, null, 2), {})
-
-  // server config
-  let _config = configJson[data.environment]
-  _config.port = data.port || _config.port
-
-  // mysql
-  data.mysql = await _mysql(data.environment)
-  _config.mysql.port = data.mysql.port || _config.mysql.port
-  _config.mysql.database = data.mysql.database || _config.mysql.database
-  _config.mysql.username = data.mysql.username || _config.mysql.username
-  _config.mysql.password = data.mysql.password || _config.mysql.password
-
-  // redis
-  data.redis = await _redis()
-  if (data.redis) {
-    _config.redis.host = data.redis.host || _config.redis.host
-    _config.redis.port = data.redis.port || _config.redis.port
-    _config.redis.password = data.redis.password || _config.redis.password
-  } else {
-    delete _config.redis
-  }
-
-  // upload
-  data.upload = await _upload()
-  if (data.upload) {
-    _config.upload.temp = data.upload.temp || _config.upload.temp
-    _config.upload.path = data.upload.path || _config.upload.path
-    _config.upload.url = data.upload.url || _config.upload.url
-  } else {
-    delete _config.upload
-  }
-
-  // log
-  data.logs = await _logs()
-  _config.logs = data.logs.realpath
-
-  console.log(chalk.green('========== generage server.config.json'))
-  fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
+  return res
 }
 
-async function _mysql(environment = 'development') {
+async function _mysql(config, environment = 'development') {
   let res = await inquirer.prompt([
     {
       name: 'port',
@@ -159,6 +139,11 @@ async function _mysql(environment = 'development') {
   if (environment === 'development') {
     await _importTesting()
   }
+
+  config.mysql.port = res.port || config.mysql.port
+  config.mysql.database = res.database || config.mysql.database
+  config.mysql.username = res.username || config.mysql.username
+  config.mysql.password = res.password || config.mysql.password
   return res
 
   async function _importTesting() {
@@ -224,14 +209,18 @@ async function _mysql(environment = 'development') {
   }
 }
 
-async function _redis() {
+async function _redis(config) {
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置Redis:',
     type: 'confirm',
     default: false,
   }])
-  if (!answer.yn) return null
+
+  if (!answer.yn) {
+    delete config.redis
+    return null
+  }
 
   let res = await inquirer.prompt([
     {
@@ -254,28 +243,35 @@ async function _redis() {
       default: '',
     },
   ])
+
+  config.redis.host = res.host || config.redis.host
+  config.redis.port = res.port || config.redis.port
+  config.redis.password = res.password || config.redis.password
   return res
 }
 
-async function _upload() {
+async function _upload(config) {
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置上传路径:',
     type: 'confirm',
     default: true,
   }])
-  if (!answer.yn) return null
+  if (!answer.yn) {
+    delete config.upload
+    return null
+  }
 
   let res = await inquirer.prompt([
     {
       name: 'uploadPath',
-      message: '上传文件存储目录(相对当前目录):',
+      message: '上传文件存储目录(相对项目目录):',
       type: 'input',
       default: 'upload',
     },
     {
       name: 'uploadTmp',
-      message: '上传文件临时目录(相对当前目录):',
+      message: '上传文件临时目录(相对项目目录):',
       type: 'input',
       default: 'upload.temp'
     },
@@ -286,24 +282,65 @@ async function _upload() {
       default: '/',
     },
   ])
+
+  config.upload.temp = res.temp || config.upload.temp
+  config.upload.path = res.path || config.upload.path
+  config.upload.url = res.url || config.upload.url
   return res
 }
 
-async function _logs() {
+async function _logs(config) {
   let res = await inquirer.prompt([
     {
       name: 'logPath',
-      message: '日志目录(相对当前目录):',
+      message: '日志目录(相对项目目录):',
       type: 'input',
-      default: 'logs',
-      validate: str => regEn.test(str)
+      default: config.logs || 'logs',
     },
   ])
-  let realpath = path.resolve(__dirname, '../../' + res.logPath)
-  shelljs.exec(`mkdir ${realpath}`)
-  shelljs.exec(`touch ${realpath}/.gitkeep`)
+  if (res.logPath !== config.logs) {
+    let realpath = path.resolve(__dirname, '../../' + res.logPath)
+    shelljs.exec(`mkdir ${realpath}`)
+    shelljs.exec(`touch ${realpath}/.gitkeep`)
+    config.logs = realpath
+  }
+  return res
+}
 
-  res.realpath = realpath
+async function _https(config) {
+  let answer = await inquirer.prompt([{
+    name: 'yn',
+    message: '配置https:',
+    type: 'confirm',
+    default: false,
+  }])
+  if (!answer.yn) {
+    config.https = false
+    return null
+  }
+
+  let res = await inquirer.prompt([
+    {
+      name: 'port',
+      message: 'https端口:',
+      type: 'input',
+      default: '8989',
+      validate: str => regPort.test(str)
+    },
+    {
+      name: 'key',
+      message: '私钥路径:',
+      type: 'input',
+      default: 'cert/private.key',
+    },
+    {
+      name: 'cert',
+      message: '证书路径:',
+      type: 'input',
+      default: 'cert/cert.crt',
+    },
+  ])
+  config.https = res
   return res
 }
 

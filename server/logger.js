@@ -3,8 +3,11 @@ const path = require('path')
 const glob = require('glob')
 const log4js = require('log4js')
 
-const savepath = path.resolve(__dirname, '../logs')
+const config = require('../config/server')
+const savepath = config.logs
 const DEBUG = process.env.NODE_ENV !== 'production'
+
+console.log(path.relative(__dirname, '/logs'))
 
 // const shelljs = require('shelljs')
 // shelljs.exec(`rsync -a --include='*/' --exclude='*' ${server}/ ${savepath}/`)

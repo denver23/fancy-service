@@ -1,7 +1,13 @@
+const https = {
+  port: 8282,
+  key: 'cert/private.key',
+  cert: 'cert/cert.crt',
+}
 
 const config = {
   development: {
     port: 8181,
+    https,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',
@@ -24,6 +30,7 @@ const config = {
   },
   testing: {
     port: 8181,
+    https,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',
@@ -46,11 +53,7 @@ const config = {
   },
   production: {
     port: 8181,
-    // https: {
-    //   port: 8282,
-    //   key: `${root}/cert/private.key`,
-    //   cert: `${root}/cert/cert.crt`,
-    // },
+    https,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',
