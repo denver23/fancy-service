@@ -1,10 +1,8 @@
 'use strict'
-const path = require('path')
 const express = require('express')
 const router = express.Router()
 // log
-const cname = path.basename(__filename, '.js')
-const logger = require('../logger')('Api.' + cname)
+const logger = require('../logger')(__filename)
 // model
 const TestModel = require('../Model/Test.class')(logger)
 

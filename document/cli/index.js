@@ -87,19 +87,18 @@ const release = async () => {
   fs.writeFileSync(packageFile, JSON.stringify(packageJson, null, 2), {})
 
   // server config
-  data.mysql = await _mysql(data.environment)
-  data.redis = await _redis()
-  data.upload = await _upload()
-
   let _config = configJson[data.environment]
   _config.port = data.port || _config.port
+
   // mysql
+  data.mysql = await _mysql(data.environment)
   _config.mysql.port = data.mysql.port || _config.mysql.port
   _config.mysql.database = data.mysql.database || _config.mysql.database
   _config.mysql.username = data.mysql.username || _config.mysql.username
   _config.mysql.password = data.mysql.password || _config.mysql.password
 
   // redis
+  data.redis = await _redis()
   if (data.redis) {
     _config.redis.host = data.redis.host || _config.redis.host
     _config.redis.port = data.redis.port || _config.redis.port
@@ -109,6 +108,7 @@ const release = async () => {
   }
 
   // upload
+  data.upload = await _upload()
   if (data.upload) {
     _config.upload.temp = data.upload.temp || _config.upload.temp
     _config.upload.path = data.upload.path || _config.upload.path
@@ -116,6 +116,10 @@ const release = async () => {
   } else {
     delete _config.upload
   }
+
+  // log
+  data.logs = await _logs()
+  _config.logs = data.logs.realpath
 
   console.log(chalk.green('========== generage server.config.json'))
   fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
@@ -282,6 +286,24 @@ async function _upload() {
       default: '/',
     },
   ])
+  return res
+}
+
+async function _logs() {
+  let res = await inquirer.prompt([
+    {
+      name: 'logPath',
+      message: '日志目录(相对当前目录):',
+      type: 'input',
+      default: 'logs',
+      validate: str => regEn.test(str)
+    },
+  ])
+  let realpath = path.resolve(__dirname, '../../' + res.logPath)
+  shelljs.exec(`mkdir ${realpath}`)
+  shelljs.exec(`touch ${realpath}/.gitkeep`)
+
+  res.realpath = realpath
   return res
 }
 

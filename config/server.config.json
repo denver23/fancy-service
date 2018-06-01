@@ -9,16 +9,12 @@
       "username": "fancy",
       "password": "fancy"
     },
-    "redis": {
-      "host": "127.0.0.1",
-      "port": "6379",
-      "password": ""
-    },
     "upload": {
       "temp": "upload.temp",
       "path": "upload",
       "url": "/upload"
-    }
+    },
+    "logs": "/sdb/mnt/gitHub/fancy-service/logs"
   },
   "testing": {
     "port": 8181,

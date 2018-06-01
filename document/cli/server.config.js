@@ -15,6 +15,7 @@ const config = {
       port: 6379,
       password: '',
     },
+    logs: 'logs',
     upload: {
       temp: 'upload.temp',
       path: 'upload',
@@ -36,6 +37,7 @@ const config = {
       port: 6379,
       password: '',
     },
+    logs: 'logs',
     upload: {
       temp: 'upload.temp',
       path: 'upload',
@@ -62,6 +64,7 @@ const config = {
       port: 6379,
       password: '',
     },
+    logs: 'logs',
     upload: {
       temp: 'upload.temp',
       path: 'upload',

@@ -1,16 +1,16 @@
 'use strict'
-const fs = require('fs')
 const path = require('path')
+const glob = require('glob')
 const log4js = require('log4js')
-const shelljs = require('shelljs')
 
-const server = path.resolve(__dirname, './')
-console.log(server)
-const root = path.resolve(__dirname, '../logs')
+const savepath = path.resolve(__dirname, '../logs')
 const DEBUG = process.env.NODE_ENV !== 'production'
 
-shelljs.exec(`rsync -a --include='*/' --exclude='*' ${server}/ ${root}/`)
+// const shelljs = require('shelljs')
+// shelljs.exec(`rsync -a --include='*/' --exclude='*' ${server}/ ${savepath}/`)
 // rm -irf !(.gitkeep)
+
+const sepReg = new RegExp(path.sep, 'g')
 
 const appenders = {
   console: {
@@ -18,7 +18,7 @@ const appenders = {
   },
   Model: {
     type: 'dateFile',
-    filename: `${root}/Model`,
+    filename: `${savepath}/Model`,
     pattern: '.yyyyMMdd.log',
     alwaysIncludePattern: true,
     maxLogSize: 1024,
@@ -44,38 +44,31 @@ log4js.configure({
   replaceConsole: true,
 })
 
-module.exports = category => log4js.getLogger(category)
+module.exports = filename => {
+  let category = getName(filename)
+  return log4js.getLogger(category)
+}
 
-function add(dirname) {
-  let list = []
-  try {
-    let ta = `${root}/${dirname}`
-    fs.existsSync(ta) || fs.mkdirSync(ta)
-    list = fs.readdirSync(path.resolve(__dirname, `./${dirname}`))
-  } catch (error) {
-    console.log(error)
-  }
+function getName(to) {
+  return path.basename(path.relative(__dirname, to).replace(sepReg, '.'), '.js')
+}
 
-  list.forEach((ele, index) => {
-    if (ele === 'Controller.class.js') return
-    let name = [dirname, path.basename(ele, '.js')].join('/')
+function add(directory) {
+  let list = glob.sync(`/${directory}/**/*.js`, { root: __dirname })
+  list.forEach(v => {
+    let name = getName(v)
 
     appenders[name] = {
       type: 'dateFile',
-      filename: `${root}/${name}`,
+      filename: `${savepath}/${name}`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
       maxLogSize: 1024,
     }
 
-    let arr = [name]
-    DEBUG && arr.push('console')
-
     categories[name] = {
-      appenders: arr,
+      appenders: DEBUG ? [name, 'console'] : [name],
       level: DEBUG ? 'debug' : 'warn',
     }
   })
 }
-
-

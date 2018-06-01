@@ -1,11 +1,8 @@
 'use strict'
-const path = require('path')
 const express = require('express')
 const router = express.Router()
 // log
-const cname = path.basename(__filename, '.js')
-const logger = require('../logger')(cname)
-
+const logger = require('../logger')(__filename)
 // model
 const TestModel = require('../Model/Test.class')(logger)
 
@@ -13,7 +10,7 @@ class Test extends require('./Controller.class') {
   constructor(req, response, action) {
     super(req, response)
     this.user = null
-    console.log(this.logger)
+
     this[action]()
   }
 
