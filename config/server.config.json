@@ -1,11 +1,7 @@
 {
   "development": {
     "port": "8282",
-    "https": {
-      "port": 8282,
-      "key": "cert/private.key",
-      "cert": "cert/cert.crt"
-    },
+    "https": false,
     "jsonpCallback": "callback",
     "mysql": {
       "host": "localhost",
@@ -14,7 +10,7 @@
       "username": "fancy",
       "password": "fancy"
     },
-    "logs": "logs",
+    "logs": "./logs",
     "upload": {
       "temp": "./upload.temp",
       "path": "./upload",

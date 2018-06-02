@@ -82,6 +82,12 @@ async function _baseinfo() {
       default: packageJson.author.url || '',
     },
     {
+      name: 'poweredBy',
+      message: 'powedeBy:',
+      type: 'input',
+      default: packageJson.author.url || '',
+    },
+    {
       name: 'environment',
       message: '运行环境选择:',
       type: 'list',
@@ -293,11 +299,10 @@ async function _upload(config) {
   ])
 
   if (environment === 'development') {
-    let p1 = path.resolve(root, res.path)
-    let p2 = path.resolve(root, res.temp)
-    shelljs.exec(`mkdir -p ${p1} ${p2}`)
-    addGitIgnore(`${p1}/.gitignore`)
-    addGitIgnore(`${p2}/.gitignore`)
+    let up = path.resolve(root, res.path)
+    let temp = path.resolve(root, res.temp)
+    shelljs.exec(`mkdir -p ${up} ${temp}`)
+    addGitIgnore(`${temp}/.gitignore`)
   }
 
   config.upload.temp = res.temp || config.upload.temp

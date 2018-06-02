@@ -1,3 +1,4 @@
+const poweredBy = 'Fancy Server',
 const https = {
   port: 8282,
   key: 'cert/private.key',
@@ -8,6 +9,7 @@ const config = {
   development: {
     port: 8181,
     https,
+    poweredBy,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',
@@ -31,6 +33,7 @@ const config = {
   testing: {
     port: 8181,
     https,
+    poweredBy,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',
@@ -54,6 +57,7 @@ const config = {
   production: {
     port: 8181,
     https,
+    poweredBy,
     jsonpCallback: 'callback',
     mysql: {
       host: 'localhost',

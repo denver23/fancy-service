@@ -7,8 +7,6 @@ const config = require('../config/server')
 const savepath = config.logs
 const DEBUG = process.env.NODE_ENV !== 'production'
 
-console.log(path.relative(__dirname, '/logs'))
-
 // const shelljs = require('shelljs')
 // shelljs.exec(`rsync -a --include='*/' --exclude='*' ${server}/ ${savepath}/`)
 // rm -irf !(.gitkeep)

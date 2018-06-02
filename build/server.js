@@ -21,6 +21,7 @@ require('../server/Crontab/')
 
 // server
 const config = require('../config/server')
+const routers = require('../server/routers')
 const app = express()
 
 app.use(helmet())
@@ -28,7 +29,7 @@ app.use(compression())
 app.use(morgan('combined', {
   stream: fileStreamRotator.getStream({
     date_format: 'YYYYMMDD',
-    filename: path.join(path.resolve(__dirname, '../logs/'), 'access.%DATE%.log'),
+    filename: `${config.logs}/access.%DATE%.log`,
     frequency: 'daily',
     verbose: false
   })
@@ -60,13 +61,8 @@ app.set('jsonp callback name', config.jsonpCallback || 'callback')
 app.set('views', path.join(__dirname, '../server/views'))
 app.set('view engine', 'pug')
 
-let $root = express.static(path.join(__dirname, '../dist'))
-app.use('/', $root)
-app.use(/^(?!\/(v1|api)).*?$/, $root)
-
 // routers
-app.use('/api/test', require('../server/Api/Test'))
-app.use('/v1/test', require('../server/Controller/Test'))
+routers.forEach(v => app.use(v.path, v.target))
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
