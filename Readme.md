@@ -1,7 +1,5 @@
 # Fancy Service
 
-## Web Service
-
 ``` bash
 
 npm install

@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '../../')
 const packageJson = require('../../package.json')
 let configJson = require('./server.config.js')
 let configFile = `${root}/config/server.config.json`
+let environment = 'development'
 
 if (fs.existsSync(configFile)) {
   configJson = require(configFile)
@@ -15,15 +16,21 @@ if (fs.existsSync(configFile)) {
 
 const regEn = /^[A-Za-z]\w+$/
 const regPort = /^[1-9]\d{3,4}$/
+const addGitIgnore = (filepath) => {
+  shelljs.exec(`touch ${filepath}`)
+  shelljs.exec(`echo "*" >> ${filepath}`)
+  shelljs.exec(`echo "!.gitignore" >> ${filepath}`)
+}
 
 const release = async () => {
   const baseinfo = await _baseinfo()
 
   // server config
-  let config = configJson[baseinfo.environment]
+  environment = baseinfo.environment
+  let config = configJson[environment]
   config.port = baseinfo.port || config.port
 
-  await _mysql(config, baseinfo.environment)
+  await _mysql(config, )
   await _redis(config)
   await _upload(config)
   await _logs(config)
@@ -107,7 +114,7 @@ async function _baseinfo() {
   return res
 }
 
-async function _mysql(config, environment = 'development') {
+async function _mysql(config) {
   let res = await inquirer.prompt([
     {
       name: 'port',
@@ -285,6 +292,14 @@ async function _upload(config) {
     },
   ])
 
+  if (environment === 'development') {
+    let p1 = path.resolve(root, res.path)
+    let p2 = path.resolve(root, res.temp)
+    shelljs.exec(`mkdir -p ${p1} ${p2}`)
+    addGitIgnore(`${p1}/.gitignore`)
+    addGitIgnore(`${p2}/.gitignore`)
+  }
+
   config.upload.temp = res.temp || config.upload.temp
   config.upload.path = res.path || config.upload.path
   config.upload.url = res.url || config.upload.url
@@ -302,11 +317,8 @@ async function _logs(config) {
   ])
 
   let realpath = path.resolve(root, res.path)
-  let ignore = `${realpath}/.gitignore`
   shelljs.exec(`mkdir -p ${realpath}`)
-  shelljs.exec(`touch ${ignore}`)
-  shelljs.exec(`echo "*" >> ${ignore}`)
-  shelljs.exec(`echo "!.gitignore" >> ${ignore}`)
+  addGitIgnore(`${realpath}/.gitignore`)
 
   config.logs = res.path
   return res
