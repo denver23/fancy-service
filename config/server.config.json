@@ -1,7 +1,11 @@
 {
   "development": {
     "port": "8282",
-    "https": false,
+    "https": {
+      "port": 8282,
+      "key": "cert/private.key",
+      "cert": "cert/cert.crt"
+    },
     "jsonpCallback": "callback",
     "mysql": {
       "host": "localhost",
@@ -10,11 +14,11 @@
       "username": "fancy",
       "password": "fancy"
     },
-    "logs": "/sdb/mnt/gitHub/fancy-service/logs",
+    "logs": "logs",
     "upload": {
-      "temp": "upload.temp",
-      "path": "upload",
-      "url": "/upload"
+      "temp": "./upload.temp",
+      "path": "./upload",
+      "url": "/"
     }
   },
   "testing": {

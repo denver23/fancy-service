@@ -4,9 +4,11 @@ const chalk = require('chalk')
 const shelljs = require('shelljs')
 const inquirer = require('inquirer')
 
-let packageJson = require('../../package.json')
+const root = path.resolve(__dirname, '../../')
+const packageJson = require('../../package.json')
 let configJson = require('./server.config.js')
-let configFile = path.resolve(__dirname, '../../config/server.config.json')
+let configFile = `${root}/config/server.config.json`
+
 if (fs.existsSync(configFile)) {
   configJson = require(configFile)
 }
@@ -25,7 +27,7 @@ const release = async () => {
   await _redis(config)
   await _upload(config)
   await _logs(config)
-  await _https(config)
+  // await _https(config)
 
   console.log(chalk.green('========== generage server.config.json'))
   fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
@@ -264,19 +266,19 @@ async function _upload(config) {
 
   let res = await inquirer.prompt([
     {
-      name: 'uploadPath',
+      name: 'path',
       message: '上传文件存储目录(相对项目目录):',
       type: 'input',
-      default: 'upload',
+      default: './upload',
     },
     {
-      name: 'uploadTmp',
+      name: 'temp',
       message: '上传文件临时目录(相对项目目录):',
       type: 'input',
-      default: 'upload.temp'
+      default: './upload.temp'
     },
     {
-      name: 'uploadUrl',
+      name: 'url',
       message: '上传文件访问URL:',
       type: 'input',
       default: '/',
@@ -292,18 +294,21 @@ async function _upload(config) {
 async function _logs(config) {
   let res = await inquirer.prompt([
     {
-      name: 'logPath',
-      message: '日志目录(相对项目目录):',
+      name: 'path',
+      message: '日志目录(相对当前目录):',
       type: 'input',
-      default: config.logs || 'logs',
+      default: config.logs || './logs',
     },
   ])
-  if (res.logPath !== config.logs) {
-    let realpath = path.resolve(__dirname, '../../' + res.logPath)
-    shelljs.exec(`mkdir ${realpath}`)
-    shelljs.exec(`touch ${realpath}/.gitkeep`)
-    config.logs = realpath
-  }
+
+  let realpath = path.resolve(root, res.path)
+  let ignore = `${realpath}/.gitignore`
+  shelljs.exec(`mkdir -p ${realpath}`)
+  shelljs.exec(`touch ${ignore}`)
+  shelljs.exec(`echo "*" >> ${ignore}`)
+  shelljs.exec(`echo "!.gitignore" >> ${ignore}`)
+
+  config.logs = res.path
   return res
 }
 
