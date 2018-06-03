@@ -7,7 +7,7 @@
     "email": "28240885@qq.com",
     "url": "https://github.com/denver23/fancy-service"
   },
-  "private": true,
+  "license": "MIT",
   "scripts": {
     "start": "npm run s.pro",
     "s.dev": "cross-env NODE_ENV=development nodemon --watch server --watch common build/server.js",
