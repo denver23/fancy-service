@@ -30,7 +30,7 @@ const release = async () => {
   let config = configJson[environment]
   config.port = baseinfo.port || config.port
 
-  await _mysql(config, )
+  await _mysql(config)
   await _redis(config)
   await _upload(config)
   await _logs(config)
@@ -82,12 +82,6 @@ async function _baseinfo() {
       default: packageJson.author.url || '',
     },
     {
-      name: 'poweredBy',
-      message: 'powedeBy:',
-      type: 'input',
-      default: packageJson.author.url || '',
-    },
-    {
       name: 'environment',
       message: '运行环境选择:',
       type: 'list',
@@ -102,7 +96,7 @@ async function _baseinfo() {
       name: 'port',
       message: '项目端口号:',
       type: 'input',
-      default: '8282',
+      default: '8001',
       validate: str => regPort.test(str)
     },
   ])
@@ -346,7 +340,7 @@ async function _https(config) {
       name: 'port',
       message: 'https端口:',
       type: 'input',
-      default: '8989',
+      default: '8002',
       validate: str => regPort.test(str)
     },
     {

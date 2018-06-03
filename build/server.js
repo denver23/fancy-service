@@ -37,7 +37,7 @@ app.use(morgan('combined', {
 
 app.use((req, res, next) => {
   app.disable('x-powered-by')
-  res.setHeader('X-Powered-By', 'Fancy Build')
+  // res.setHeader('X-Powered-By', 'Fancy Build')
   next()
 })
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
