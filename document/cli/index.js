@@ -22,6 +22,10 @@ const addGitIgnore = (filepath) => {
   shelljs.exec(`echo "!.gitignore" >> ${filepath}`)
 }
 
+const tips = str => {
+  console.log(chalk.green(`==================== ${str}`))
+}
+
 const release = async () => {
   const baseinfo = await _baseinfo()
 
@@ -36,7 +40,7 @@ const release = async () => {
   await _logs(config)
   // await _https(config)
 
-  console.log(chalk.green('========== generage server.config.json'))
+  tips('generage config/server.config.json')
   fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
 }
 
@@ -108,17 +112,18 @@ async function _baseinfo() {
   packageJson.author.email = res.email || ''
   packageJson.author.url = res.url || ''
 
-  console.log(chalk.green('========== update pageage.json'))
+  tips('update pageage.json')
   let packageFile = path.resolve(__dirname, '../../package.json')
   fs.writeFileSync(packageFile, JSON.stringify(packageJson, null, 2), {})
   return res
 }
 
 async function _mysql(config) {
+  tips('mysql setting')
   let res = await inquirer.prompt([
     {
       name: 'port',
-      message: 'Mysql端口:',
+      message: '端口:',
       type: 'input',
       default: '3306',
       validate: str => regPort.test(str)
@@ -188,7 +193,7 @@ async function _mysql(config) {
           {
             name: 'psw',
             message: '数据库管理员密码:',
-            type: 'input',
+            type: 'password',
             default: '123123',
           },
         ])
@@ -203,22 +208,23 @@ async function _mysql(config) {
     let conn = `mysql -u${root} -p${psw} -P${res.port}`
     _createDatabase(conn)
 
-    shelljs.exec(`${conn} -N -e "DROP USER IF EXISTS '${res.username}'@'localhost';"`)
-    shelljs.exec(`${conn} -N -e "CREATE USER ${res.username}@'localhost' IDENTIFIED BY '${res.password}'"`)
-    shelljs.exec(`${conn} -N -e "GRANT ALL PRIVILEGES ON ${res.username}.* TO '${res.database}'@'localhost';"`)
+    shelljs.exec(`${conn} -N -e "DROP USER IF EXISTS '${res.username}'@'localhost';" 2>/dev/null`)
+    shelljs.exec(`${conn} -N -e "CREATE USER ${res.username}@'localhost' IDENTIFIED BY '${res.password}'" 2>/dev/null`)
+    shelljs.exec(`${conn} -N -e "GRANT ALL PRIVILEGES ON ${res.username}.* TO '${res.database}'@'localhost';" 2>/dev/null`)
   }
   function _createDatabase(connect = false) {
-    console.log(chalk.green('========== import database'))
-
     let conn = connect || `mysql -u${res.username} -p${res.password} -P${res.port}`
-    shelljs.exec(`${conn} -N -e "DROP DATABASE IF EXISTS ${res.database};"`)
-    shelljs.exec(`${conn} -N -e "CREATE DATABASE ${res.database};"`)
+    shelljs.exec(`${conn} -N -e "DROP DATABASE IF EXISTS ${res.database};" 2>/dev/null`)
+    shelljs.exec(`${conn} -N -e "CREATE DATABASE ${res.database};" 2>/dev/null`)
     // shelljs.exec(`${conn} -N -e "show databases;"`)
-    shelljs.exec(`${conn} ${res.database} < ./document/database.sql`)
+    shelljs.exec(`${conn} ${res.database} < ./document/database.sql 2>/dev/null`)
+
+    tips('import database success')
   }
 }
 
 async function _redis(config) {
+  tips('redis setting')
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置Redis:',
@@ -260,6 +266,7 @@ async function _redis(config) {
 }
 
 async function _upload(config) {
+  tips('upload setting')
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置上传路径:',
@@ -306,6 +313,7 @@ async function _upload(config) {
 }
 
 async function _logs(config) {
+  tips('logs setting')
   let res = await inquirer.prompt([
     {
       name: 'path',
