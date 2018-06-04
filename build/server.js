@@ -88,15 +88,18 @@ server.on('listening', () => onListening(server, 'http'))
 
 var httpsServer = {}
 if (config.https) {
+  let _key = path.resolve(__dirname, `../${config.https.key}`)
+  let _cert = path.resolve(__dirname, `../${config.https.cert}`)
+  let _port = config.https.port
   const credentials = {
-    key: fs.readFileSync(config.https.key, 'utf8'),
-    cert: fs.readFileSync(config.https.cert, 'utf8'),
+    key: fs.readFileSync(_key, 'utf8'),
+    cert: fs.readFileSync(_cert, 'utf8'),
     // ciphers : "ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE",
     // honorCipherOrder : true
   }
   httpsServer = https.createServer(credentials, app)
-  httpsServer.listen(config.https.port)
-  httpsServer.on('error', err => onError(err, config.https.port))
+  httpsServer.listen(_port)
+  httpsServer.on('error', err => onError(err, _port))
   httpsServer.on('listening', () => onListening(httpsServer, 'https'))
 }
 

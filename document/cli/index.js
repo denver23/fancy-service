@@ -38,7 +38,7 @@ const release = async () => {
   await _redis(config)
   await _upload(config)
   await _logs(config)
-  // await _https(config)
+  await _https(config)
 
   tips('generage config/server.config.json')
   fs.writeFileSync(configFile, JSON.stringify(configJson, null, 2), {})
@@ -224,7 +224,6 @@ async function _mysql(config) {
 }
 
 async function _redis(config) {
-  tips('redis setting')
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置Redis:',
@@ -237,6 +236,7 @@ async function _redis(config) {
     return null
   }
 
+  tips('redis setting')
   let res = await inquirer.prompt([
     {
       name: 'host',
@@ -266,7 +266,6 @@ async function _redis(config) {
 }
 
 async function _upload(config) {
-  tips('upload setting')
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置上传路径:',
@@ -278,6 +277,7 @@ async function _upload(config) {
     return null
   }
 
+  tips('upload setting')
   let res = await inquirer.prompt([
     {
       name: 'path',
@@ -343,10 +343,11 @@ async function _https(config) {
     return null
   }
 
+  tips('https setting')
   let res = await inquirer.prompt([
     {
       name: 'port',
-      message: 'https端口:',
+      message: '端口:',
       type: 'input',
       default: '8002',
       validate: str => regPort.test(str)
@@ -355,13 +356,13 @@ async function _https(config) {
       name: 'key',
       message: '私钥路径:',
       type: 'input',
-      default: 'cert/private.key',
+      default: config.https.key || './cert/private.key',
     },
     {
       name: 'cert',
       message: '证书路径:',
       type: 'input',
-      default: 'cert/cert.crt',
+      default: config.https.cert || './cert/cert.crt',
     },
   ])
   config.https = res
