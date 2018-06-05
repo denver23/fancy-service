@@ -120,33 +120,34 @@ async function _baseinfo() {
 
 async function _mysql(config) {
   tips('mysql setting')
+  let cfg = config.mysql
   let res = await inquirer.prompt([
     {
       name: 'port',
       message: '端口:',
       type: 'input',
-      default: '3306',
+      default: cfg.port || '3306',
       validate: str => regPort.test(str)
     },
     {
       name: 'database',
       message: '数据库名:',
       type: 'input',
-      default: 'fancy',
+      default: cfg.database || 'fancy',
       validate: str => regEn.test(str)
     },
     {
       name: 'username',
       message: '数据库账号:',
       type: 'input',
-      default: 'fancy',
+      default: cfg.username || 'fancy',
       validate: str => regEn.test(str)
     },
     {
       name: 'password',
       message: '数据库账号密码:',
-      type: 'input',
-      default: 'fancy',
+      type: 'password',
+      default: cfg.password || 'fancy',
     },
   ])
   const isRoot = res.username === 'root'
@@ -154,10 +155,7 @@ async function _mysql(config) {
     await _importTesting()
   }
 
-  config.mysql.port = res.port || config.mysql.port
-  config.mysql.database = res.database || config.mysql.database
-  config.mysql.username = res.username || config.mysql.username
-  config.mysql.password = res.password || config.mysql.password
+  config.mysql = res
   return res
 
   async function _importTesting() {
@@ -237,35 +235,33 @@ async function _redis(config) {
   }
 
   tips('redis setting')
+  let cfg = config.redis || {}
   let res = await inquirer.prompt([
     {
       name: 'host',
       message: 'Redis IP:',
       type: 'input',
-      default: '127.0.0.1'
+      default: cfg.host || '127.0.0.1'
     },
     {
       name: 'port',
       message: 'Redis 端口:',
       type: 'input',
-      default: '6379',
+      default: cfg.port || '6379',
       validate: str => regPort.test(str)
     },
     {
       name: 'password',
       message: 'Redis 密码:',
-      type: 'input',
-      default: '',
+      type: 'password',
+      default: cfg.password || '',
     },
   ])
-
-  config.redis.host = res.host || config.redis.host
-  config.redis.port = res.port || config.redis.port
-  config.redis.password = res.password || config.redis.password
-  return res
+  config.redis = res
 }
 
 async function _upload(config) {
+  let cfg = config.upload || {}
   let answer = await inquirer.prompt([{
     name: 'yn',
     message: '配置上传路径:',
@@ -283,19 +279,19 @@ async function _upload(config) {
       name: 'path',
       message: '上传文件存储目录(相对项目目录):',
       type: 'input',
-      default: './upload',
+      default: cfg.path || './upload',
     },
     {
       name: 'temp',
       message: '上传文件临时目录(相对项目目录):',
       type: 'input',
-      default: './upload.temp'
+      default: cfg.temp || './upload.temp'
     },
     {
       name: 'url',
       message: '上传文件访问URL:',
       type: 'input',
-      default: '/',
+      default: cfg.url || '/',
     },
   ])
 
