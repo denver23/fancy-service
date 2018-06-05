@@ -125,6 +125,12 @@ async function _mysql(config) {
   let cfg = config.mysql
   let res = await inquirer.prompt([
     {
+      name: 'host',
+      message: 'host:',
+      type: 'input',
+      default: cfg.host || 'localhost',
+    },
+    {
       name: 'port',
       message: '端口:',
       type: 'input',
