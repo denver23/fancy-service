@@ -10,12 +10,7 @@
       "username": "fancy",
       "password": "fancy"
     },
-    "logs": "./logs",
-    "upload": {
-      "temp": "./upload.temp",
-      "path": "./upload",
-      "url": "/"
-    }
+    "logs": "./logs"
   },
   "testing": {
     "port": 8181,

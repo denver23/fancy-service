@@ -17,6 +17,8 @@ if (fs.existsSync(configFile)) {
 const regEn = /^[A-Za-z]\w+$/
 const regPort = /^[1-9]\d{3,4}$/
 const addGitIgnore = (filepath) => {
+  let had = fs.existsSync(filepath)
+  if (had) return
   shelljs.exec(`touch ${filepath}`)
   shelljs.exec(`echo "*" >> ${filepath}`)
   shelljs.exec(`echo "!.gitignore" >> ${filepath}`)
